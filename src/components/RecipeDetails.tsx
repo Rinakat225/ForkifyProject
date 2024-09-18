@@ -43,6 +43,27 @@ export default function RecipeDetails() {
     if (id) fetchRecipe(id);
   }, [id]);
 
+  const handleUpdateServings = (serving: number) => {
+    if (serving < 1) return;
+
+    setRecipe((prevRecipe) => {
+      const updatedRecipe = {
+        ...prevRecipe,
+        servings: serving,
+        ingredients: prevRecipe?.ingredients.map((ingredient) => {
+          if (ingredient.quantity !== null) {
+            return {
+              ...ingredient,
+              quantity: ingredient.quantity * (serving / prevRecipe.servings),
+            };
+          }
+          return ingredient;
+        }),
+      };
+      return updatedRecipe;
+    });
+  };
+
   if (isLoading) {
     return <Spinner />;
   }
@@ -81,12 +102,18 @@ export default function RecipeDetails() {
               <span className="recipe__info-text">servings</span>
 
               <div className="recipe__info-buttons">
-                <button className="btn--tiny btn--increase-servings">
+                <button
+                  className="btn--tiny btn--update-servings"
+                  onClick={() => handleUpdateServings(recipe.servings - 1)}
+                >
                   <svg>
                     <use href="../src/img/icons.svg#icon-minus-circle"></use>
                   </svg>
                 </button>
-                <button className="btn--tiny btn--increase-servings">
+                <button
+                  className="btn--tiny btn--update-servings"
+                  onClick={() => handleUpdateServings(recipe.servings + 1)}
+                >
                   <svg>
                     <use href="../src/img/icons.svg#icon-plus-circle"></use>
                   </svg>

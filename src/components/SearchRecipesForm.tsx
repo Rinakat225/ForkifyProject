@@ -7,12 +7,14 @@ interface SearchRecipesFormProps {
   setRecipeList: (recipes: Recipe[]) => void;
   setRecipeListIsLoading: (value: boolean) => void;
   setErrorMessage: (value: string) => void;
+  setCurrentPage: (page: number) => void;
 }
 
 const SearchRecipesForm = ({
   setRecipeList,
   setRecipeListIsLoading,
   setErrorMessage,
+  setCurrentPage,
 }: SearchRecipesFormProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -52,6 +54,7 @@ const SearchRecipesForm = ({
 
     fetchRecipes(searchQuery);
     setSearchQuery("");
+    setCurrentPage(1);
   };
 
   return (

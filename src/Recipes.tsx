@@ -12,6 +12,7 @@ const Recipes = () => {
   const [recipeList, setRecipeList] = useState<Recipe[]>([]);
   const [recipeListIsLoading, setRecipeListIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   return (
     <Router>
@@ -22,6 +23,7 @@ const Recipes = () => {
             setRecipeList={setRecipeList}
             setRecipeListIsLoading={setRecipeListIsLoading}
             setErrorMessage={setErrorMessage}
+            setCurrentPage={setCurrentPage}
           />
           <HeaderActionsButtons />
         </header>
@@ -29,6 +31,8 @@ const Recipes = () => {
           recipeList={recipeList}
           recipeListIsLoading={recipeListIsLoading}
           errorMessage={errorMessage}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
         />
 
         <div className="recipe">

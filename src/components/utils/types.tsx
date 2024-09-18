@@ -1,3 +1,8 @@
+export interface ingredients {
+  description: string;
+  quantity: number | null;
+  unit: string;
+}
 export interface Recipe {
   id: string;
   title: string;
@@ -6,11 +11,5 @@ export interface Recipe {
   image_url: string;
   servings: number;
   cookingTime: number;
-  ingredients: [
-    {
-      description: string;
-      quantity: number | null;
-      unit: string;
-    }
-  ];
+  ingredients: ingredients[];
 }

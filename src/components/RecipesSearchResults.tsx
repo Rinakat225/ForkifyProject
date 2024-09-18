@@ -1,22 +1,24 @@
 import { Link, useLocation } from "react-router-dom";
 import { Recipe } from "./utils/types";
 import Spinner from "./Spinner";
-import { useState } from "react";
 
 interface RecipesSearchResultsProps {
   recipeList: Recipe[];
   recipeListIsLoading: boolean;
   errorMessage: string;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
 }
 
 const RecipesSearchResults = ({
   recipeList,
   recipeListIsLoading,
   errorMessage,
+  currentPage,
+  setCurrentPage,
 }: RecipesSearchResultsProps) => {
   const location = useLocation();
   const id = location.pathname.split("/")[2];
-  const [currentPage, setCurrentPage] = useState(1);
 
   if (recipeListIsLoading) {
     return <Spinner />;
@@ -40,14 +42,6 @@ const RecipesSearchResults = ({
     const end = page * 10;
 
     return recipeList.slice(start, end);
-  };
-
-  const handleNextPage = (page: number) => {
-    setCurrentPage(page + 1);
-  };
-
-  const handlePreviousPage = (page: number) => {
-    setCurrentPage(page - 1);
   };
 
   return (
@@ -78,33 +72,31 @@ const RecipesSearchResults = ({
         ))}
       </ul>
       <div className="pagination">
-        {recipeList.length > 10 && (
-          <>
-            {currentPage > 1 && (
-              <button
-                className="btn--inline pagination__btn--prev"
-                onClick={() => handlePreviousPage(currentPage)}
-              >
-                <svg className="search__icon">
-                  <use href="../src/img/icons.svg#icon-arrow-left"></use>
-                </svg>
-                <span>Page {currentPage - 1}</span>
-              </button>
-            )}
+        <>
+          {currentPage > 1 && (
+            <button
+              className="btn--inline pagination__btn--prev"
+              onClick={() => setCurrentPage(currentPage - 1)}
+            >
+              <svg className="search__icon">
+                <use href="../src/img/icons.svg#icon-arrow-left"></use>
+              </svg>
+              <span>Page {currentPage - 1}</span>
+            </button>
+          )}
 
-            {recipeList.length > currentPage * 10 && (
-              <button
-                className="btn--inline pagination__btn--next"
-                onClick={() => handleNextPage(currentPage)}
-              >
-                <span>Page {currentPage + 1}</span>
-                <svg className="search__icon">
-                  <use href="../src/img/icons.svg#icon-arrow-right"></use>
-                </svg>
-              </button>
-            )}
-          </>
-        )}
+          {recipeList.length > currentPage * 10 && (
+            <button
+              className="btn--inline pagination__btn--next"
+              onClick={() => setCurrentPage(currentPage + 1)}
+            >
+              <span>Page {currentPage + 1}</span>
+              <svg className="search__icon">
+                <use href="../src/img/icons.svg#icon-arrow-right"></use>
+              </svg>
+            </button>
+          )}
+        </>
       </div>
       <p className="copyright">
         &copy; Copyright by
