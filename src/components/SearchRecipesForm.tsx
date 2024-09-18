@@ -6,11 +6,13 @@ import { getJSON } from "./utils/helpers";
 interface SearchRecipesFormProps {
   setRecipeList: (recipes: Recipe[]) => void;
   setRecipeListIsLoading: (value: boolean) => void;
+  setErrorMessage: (value: string) => void;
 }
 
 const SearchRecipesForm = ({
   setRecipeList,
   setRecipeListIsLoading,
+  setErrorMessage,
 }: SearchRecipesFormProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -35,7 +37,10 @@ const SearchRecipesForm = ({
             image_url: recipe.image_url,
           })
         );
-        console.log(fetchedRecipes);
+
+        if (fetchedRecipes.length === 0) {
+          setErrorMessage("No recipes found for your query. Please try again!");
+        }
 
         setRecipeList(fetchedRecipes);
         setRecipeListIsLoading(false);
@@ -46,6 +51,7 @@ const SearchRecipesForm = ({
     }
 
     fetchRecipes(searchQuery);
+    setSearchQuery("");
   };
 
   return (

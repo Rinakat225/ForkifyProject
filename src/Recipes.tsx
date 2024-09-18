@@ -11,6 +11,7 @@ import WelcomeMessage from "./components/WelcomeMessage";
 const Recipes = () => {
   const [recipeList, setRecipeList] = useState<Recipe[]>([]);
   const [recipeListIsLoading, setRecipeListIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <Router>
@@ -20,12 +21,14 @@ const Recipes = () => {
           <SearchRecipesForm
             setRecipeList={setRecipeList}
             setRecipeListIsLoading={setRecipeListIsLoading}
+            setErrorMessage={setErrorMessage}
           />
           <HeaderActionsButtons />
         </header>
         <RecipesSearchResults
           recipeList={recipeList}
           recipeListIsLoading={recipeListIsLoading}
+          errorMessage={errorMessage}
         />
 
         <div className="recipe">

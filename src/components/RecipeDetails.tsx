@@ -3,39 +3,9 @@ import { useParams } from "react-router-dom";
 import { Recipe } from "./utils/types.tsx";
 import { API_URL } from "./utils/config.tsx";
 import { getJSON } from "./utils/helpers.tsx";
+import Spinner from "./Spinner.tsx";
 
 /* const KEY = "fa04e8e8-c884-4eef-ba66-8cf5f740c0ec"; */
-
-/* interface Ingredient {
-  description: string;
-  quantity: number | null;
-  unit: string;
-} */ //  ??
-
-/* interface Recipe {
-  id: string;
-  title: string;
-  publisher: string;
-  sourceUrl: string;
-  image_url: string;
-  servings: number;
-  cookingTime: number;
-  ingredients: [
-    {
-      description: string;
-      quantity: number | null;
-      unit: string;
-    }
-  ];
-} */
-
-/* interface RecipeDetailsProps {
-  setShowRecipeDetails: (value: boolean) => void;
-} */
-
-/*const RecipeDetails = ({setShowRecipeDetails}: RecipeDetailsProps) => {
-  setShowRecipeDetails(false);
-}; */
 
 export default function RecipeDetails() {
   const { id } = useParams<{ id: string }>();
@@ -74,13 +44,7 @@ export default function RecipeDetails() {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <div className="spinner">
-        <svg>
-          <use href="../src/img/icons.svg#icon-loader"></use>
-        </svg>
-      </div>
-    );
+    return <Spinner />;
   }
 
   return (
@@ -151,8 +115,9 @@ export default function RecipeDetails() {
                   </svg>
                   <div className="recipe__quantity">{ingredient.quantity}</div>
                   <div className="recipe__description">
-                    <span className="recipe__unit">{ingredient.unit}</span>
-                    {ingredient.description}
+                    <span className="recipe__unit">
+                      {ingredient.unit} {ingredient.description}
+                    </span>
                   </div>
                 </li>
               ))}
