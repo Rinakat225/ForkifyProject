@@ -13,6 +13,7 @@ const Recipes = () => {
   const [recipeListIsLoading, setRecipeListIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [bookmarkList, setBookmarkList] = useState<Recipe[] | undefined>([]);
 
   return (
     <Router>
@@ -25,7 +26,7 @@ const Recipes = () => {
             setErrorMessage={setErrorMessage}
             setCurrentPage={setCurrentPage}
           />
-          <HeaderActionsButtons />
+          <HeaderActionsButtons bookmarkList={bookmarkList} />
         </header>
         <RecipesSearchResults
           recipeList={recipeList}
@@ -38,18 +39,17 @@ const Recipes = () => {
         <div className="recipe">
           <Routes>
             <Route path="/" element={<WelcomeMessage />} />
-            <Route path="/recipe/:id" element={<RecipeDetails />} />
+            <Route
+              path="/recipe/:id"
+              element={
+                <RecipeDetails
+                  bookmarkList={bookmarkList}
+                  setBookmarkList={setBookmarkList}
+                />
+              }
+            />
           </Routes>
         </div>
-
-        {/*<div className="error">
-        <div>
-          <svg>
-            <use href="src/img/icons.svg#icon-alert-triangle"></use>
-          </svg>
-        </div>
-        <p>No recipes found for your query. Please try again!</p>
-      </div>  */}
         <div className="overlay hidden"></div>
         <AddNewRecipeWindow />
       </div>

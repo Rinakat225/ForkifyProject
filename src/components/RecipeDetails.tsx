@@ -7,13 +7,24 @@ import Spinner from "./Spinner.tsx";
 
 /* const KEY = "fa04e8e8-c884-4eef-ba66-8cf5f740c0ec"; */
 
-export default function RecipeDetails() {
-  const { id } = useParams<{ id: string }>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
+interface RecipeDetailsProps {
+  bookmarkList: Recipe[] | undefined;
+  setBookmarkList: (recipe: Recipe[] | undefined) => void;
+}
+
+export default function RecipeDetails({
+  bookmarkList,
+  setBookmarkList,
+}: RecipeDetailsProps) {
+  const { id } = useParams<{
+    id: string;
+  }>();
+
+  const [recipeIsLoading, setRecipeIsLoading] = useState(false);
+  const [displayedRecipe, setDisplayedRecipe] = useState<Recipe | null>(null);
 
   async function fetchRecipe(id: string): Promise<void> {
-    setIsLoading(true);
+    setRecipeIsLoading(true);
 
     try {
       const data = await getJSON(`${API_URL}${id}`);
@@ -29,12 +40,18 @@ export default function RecipeDetails() {
         servings: recipe.servings,
         cookingTime: recipe.cooking_time,
         ingredients: recipe.ingredients,
+        bookmarked: recipe.bookmarked,
       };
 
-      setRecipe(fetchedRecipe);
-      setIsLoading(false);
+      const bookmarkedRecipe = bookmarkList?.find(
+        (recipe) => recipe.id === fetchedRecipe.id
+      );
+
+      setDisplayedRecipe({ ...fetchedRecipe, bookmarked: !!bookmarkedRecipe });
+
+      setRecipeIsLoading(false);
     } catch (err: unknown) {
-      setIsLoading(false);
+      setRecipeIsLoading(false);
       throw new Error(err as string);
     }
   }
@@ -46,7 +63,7 @@ export default function RecipeDetails() {
   const handleUpdateServings = (serving: number) => {
     if (serving < 1) return;
 
-    setRecipe((prevRecipe) => {
+    setDisplayedRecipe((prevRecipe) => {
       const updatedRecipe = {
         ...prevRecipe,
         servings: serving,
@@ -64,22 +81,35 @@ export default function RecipeDetails() {
     });
   };
 
-  if (isLoading) {
+  const handleAddBookmark = (recipe: Recipe) => {
+    const isBookmarked = recipe?.bookmarked === true;
+    const updatedRecipe = { ...recipe, bookmarked: !isBookmarked };
+
+    setDisplayedRecipe(() => updatedRecipe);
+
+    if (isBookmarked) {
+      setBookmarkList(bookmarkList?.filter((r) => r.id !== recipe.id));
+    } else {
+      setBookmarkList([updatedRecipe, ...(bookmarkList ?? [])]);
+    }
+  };
+
+  if (recipeIsLoading) {
     return <Spinner />;
   }
 
   return (
     <>
-      {recipe && (
+      {displayedRecipe && (
         <>
           <figure className="recipe__fig">
             <img
-              src={recipe.image_url}
-              alt={recipe.title}
+              src={displayedRecipe.image_url}
+              alt={displayedRecipe.title}
               className="recipe__img"
             />
             <h1 className="recipe__title">
-              <span>{recipe.title}</span>
+              <span>{displayedRecipe.title}</span>
             </h1>
           </figure>
           <div className="recipe__details">
@@ -88,7 +118,7 @@ export default function RecipeDetails() {
                 <use href="../src/img/icons.svg#icon-clock"></use>
               </svg>
               <span className="recipe__info-data recipe__info-data--minutes">
-                {recipe.cookingTime}
+                {displayedRecipe.cookingTime}
               </span>
               <span className="recipe__info-text">minutes</span>
             </div>
@@ -97,14 +127,16 @@ export default function RecipeDetails() {
                 <use href="../src/img/icons.svg#icon-users"></use>
               </svg>
               <span className="recipe__info-data recipe__info-data--people">
-                {recipe.servings}
+                {displayedRecipe.servings}
               </span>
               <span className="recipe__info-text">servings</span>
 
               <div className="recipe__info-buttons">
                 <button
                   className="btn--tiny btn--update-servings"
-                  onClick={() => handleUpdateServings(recipe.servings - 1)}
+                  onClick={() =>
+                    handleUpdateServings(displayedRecipe.servings - 1)
+                  }
                 >
                   <svg>
                     <use href="../src/img/icons.svg#icon-minus-circle"></use>
@@ -112,7 +144,9 @@ export default function RecipeDetails() {
                 </button>
                 <button
                   className="btn--tiny btn--update-servings"
-                  onClick={() => handleUpdateServings(recipe.servings + 1)}
+                  onClick={() =>
+                    handleUpdateServings(displayedRecipe.servings + 1)
+                  }
                 >
                   <svg>
                     <use href="../src/img/icons.svg#icon-plus-circle"></use>
@@ -126,16 +160,25 @@ export default function RecipeDetails() {
                 <use href="../src/img/icons.svg#icon-user"></use>
               </svg>
             </div>
-            <button className="btn--round">
+            <button
+              className="btn--round"
+              onClick={() => handleAddBookmark(displayedRecipe)}
+            >
               <svg className="">
-                <use href="../src/img/icons.svg#icon-bookmark-fill"></use>
+                <use
+                  href={`${
+                    displayedRecipe.bookmarked
+                      ? "../src/img/icons.svg#icon-bookmark-fill"
+                      : "../src/img/icons.svg#icon-bookmark"
+                  }`}
+                ></use>
               </svg>
             </button>
           </div>
           <div className="recipe__ingredients">
             <h2 className="heading--2">Recipe ingredients</h2>
             <ul className="recipe__ingredient-list">
-              {recipe.ingredients.map((ingredient) => (
+              {displayedRecipe.ingredients.map((ingredient) => (
                 <li className="recipe__ingredient">
                   <svg className="recipe__icon">
                     <use href="../src/img/icons.svg#icon-check"></use>
@@ -154,12 +197,14 @@ export default function RecipeDetails() {
             <h2 className="heading--2">How to cook it</h2>
             <p className="recipe__directions-text">
               This recipe was carefully designed and tested by
-              <span className="recipe__publisher">{recipe.publisher}</span>.
-              Please check out directions at their website.
+              <span className="recipe__publisher">
+                {displayedRecipe.publisher}
+              </span>
+              . Please check out directions at their website.
             </p>
             <a
               className="btn--small recipe__btn"
-              href={recipe.sourceUrl}
+              href={displayedRecipe.sourceUrl}
               target="_blank"
             >
               <span>Directions</span>

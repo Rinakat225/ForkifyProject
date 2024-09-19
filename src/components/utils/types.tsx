@@ -4,6 +4,7 @@ export interface ingredients {
   unit: string;
 }
 export interface Recipe {
+  bookmarked: boolean;
   id: string;
   title: string;
   publisher: string;
