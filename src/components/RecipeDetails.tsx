@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Recipe } from "./utils/types.tsx";
 import { API_URL } from "./utils/config.tsx";
 import { getJSON } from "./utils/helpers.tsx";
@@ -8,20 +8,25 @@ import Spinner from "./Spinner.tsx";
 /* const KEY = "fa04e8e8-c884-4eef-ba66-8cf5f740c0ec"; */
 
 interface RecipeDetailsProps {
-  bookmarkList: Recipe[] | undefined;
-  setBookmarkList: (recipe: Recipe[] | undefined) => void;
+  bookmarkList: Recipe[] | null;
+  setBookmarkList: (recipe: Recipe[] | null) => void;
+  displayedRecipe: Recipe | null;
+  setDisplayedRecipe: (recipe: Recipe | null) => void;
 }
 
 export default function RecipeDetails({
   bookmarkList,
   setBookmarkList,
+  displayedRecipe,
+  setDisplayedRecipe,
 }: RecipeDetailsProps) {
-  const { id } = useParams<{
+  /*  const { id } = useParams<{
     id: string;
-  }>();
+  }>(); */
+  const location = useLocation();
+  const id = location.pathname.split("/")[2];
 
   const [recipeIsLoading, setRecipeIsLoading] = useState(false);
-  const [displayedRecipe, setDisplayedRecipe] = useState<Recipe | null>(null);
 
   async function fetchRecipe(id: string): Promise<void> {
     setRecipeIsLoading(true);
@@ -63,15 +68,18 @@ export default function RecipeDetails({
   const handleUpdateServings = (serving: number) => {
     if (serving < 1) return;
 
-    setDisplayedRecipe((prevRecipe) => {
+    setDisplayedRecipe((recipe) => {
+      if (!recipe) {
+        return null;
+      }
       const updatedRecipe = {
-        ...prevRecipe,
+        ...recipe,
         servings: serving,
-        ingredients: prevRecipe?.ingredients.map((ingredient) => {
+        ingredients: recipe?.ingredients.map((ingredient) => {
           if (ingredient.quantity !== null) {
             return {
               ...ingredient,
-              quantity: ingredient.quantity * (serving / prevRecipe.servings),
+              quantity: ingredient.quantity * (serving / recipe.servings),
             };
           }
           return ingredient;
@@ -88,7 +96,12 @@ export default function RecipeDetails({
     setDisplayedRecipe(() => updatedRecipe);
 
     if (isBookmarked) {
-      setBookmarkList(bookmarkList?.filter((r) => r.id !== recipe.id));
+      setBookmarkList(
+        bookmarkList &&
+          bookmarkList?.filter(
+            (bookmarkedRecipe) => bookmarkedRecipe.id !== recipe.id
+          )
+      );
     } else {
       setBookmarkList([updatedRecipe, ...(bookmarkList ?? [])]);
     }

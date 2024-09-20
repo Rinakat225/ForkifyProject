@@ -1,11 +1,13 @@
 import { Recipe } from "./utils/types";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface BookmarksListProps {
-  bookmarkList: Recipe[] | undefined;
+  bookmarkList: Recipe[] | null;
 }
 
 const BookmarksList = ({ bookmarkList }: BookmarksListProps) => {
+  const location = useLocation();
+  const id = location.pathname.split("/")[2];
   return (
     <>
       <button className="nav__btn nav__btn--bookmarks">
@@ -19,7 +21,12 @@ const BookmarksList = ({ bookmarkList }: BookmarksListProps) => {
           <ul className="bookmarks__list">
             {bookmarkList?.map((recipe) => (
               <li className="preview" key={recipe.id}>
-                <Link to={`/recipe/${recipe.id}`} className="preview__link">
+                <Link
+                  className={`preview__link ${
+                    id === recipe.id && "preview__link--active"
+                  }`}
+                  to={`/recipe/${recipe.id}`}
+                >
                   <figure className="preview__fig">
                     <img src={recipe.image_url} alt={recipe.title} />
                   </figure>
